@@ -52,8 +52,12 @@
                                 <td> {{ $item->manufacture_year }} </td>
                                 <td> {{ $item->engine_capacity }} </td>
                                 <td> {{ $item->fuel_type }} </td>
-                                <td> <button class="btn btn-primary btn-sm">edit</button> </td>
-                                <td> <button class="btn btn-danger btn-sm">edit</button> </td>
+                                <td>
+                                    <button class="btn btn-primary btn-sm">edit</button>
+                                </td>
+                                <td>
+                                    <button class="btn btn-danger btn-sm deleteBtn" data-id="{{ $item->id }}" data-name="{{ $item->name }}" data-bs-toggle="modal" data-bs-target="#deleteModal">Delete</button>
+                                </td>
                             </tr>
                             @endforeach
                             @else
@@ -77,6 +81,9 @@
                     <h1 class="modal-title fs-5" id="exampleModalLabel">Added A New Car</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
+
+                {{-- Card Added Car Form are here  --}}
+
                 <form id="addCarForm">
                     <div class="modal-body">
                         <div class="form-group">
@@ -109,68 +116,32 @@
         </div>
     </div>
 
-    {{-- <script>
-        $(document).ready(function() {
-            $('#addCarForm').submit(function(e) {
-                e.preventDefault();
-                let formData = $(this).serialize();
-                $.ajax({
-                    url: '{{route("addCar")}}',
-    data: formData,
-    contentType: false,
-    processData: false,
-    beforeSend: function() {
-    $('.addBtn').prop('disabled', true);
-    },
-    complete: function() {
-    $('.addBtn').prop('disabled', false);
-    },
-    success: function(data) {
-    if (data.seccess == true) {
-    $('#addModel').model('hide');
-    printSuccessMsg(data.msg);
-    var reloadInterval = 5000;
+    {{-- Delete Car Modal are here --}}
+    <div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Added A New Car</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
 
-    function reloadPage() {
-    location.reload(true);
-    }
+                {{-- Card Added Car Form are here  --}}
 
-    var intervalId = setInterval(reloadPage, reloadInterval);
+                <form id="addCarForm">
+                    <div class="modal-body">
+                        <h4>Do You Realy want to<span class="badge badge-danger car_name text-danger"></span> </h4>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary deleteButton">Delete</button>
+                    </div>
 
-    } else if (data.seccess == false) {
-    printErrorMsg(data.msg);
-    } else {
-    printValidationErrorMsg(data.msg);
-    }
-    }
-    });
-    return false;
-    // There are three function for flash massage
-    function printValidationErrorMsg(msg) {
-    $.each(msg, function(field_name, error) {
-    console.log(field_name, error)
-    $(document).find('#' + field_name + '_error').text(error);
-    });
-    }
-
-    function printErrorMsg(msg) {
-    $('#alert-danger').html('');
-    $('#alert-danger').css('display', 'block');
-    $('#alert-danger').append('' + msg + '');
-    }
-
-    function printSuccessMsg(msg) {
-    console.log('true');
-    $('#alert-success').html('');
-    $('#alert-success').css('display', 'block');
-    $('#alert-success').append('' + msg + '');
-    document.getElementById('addCarForm').reset();
-    }
-    });
-    });
-    </script> --}}
+            </div>
+        </div>
+    </div>
 
     <script>
+        // Added Functionalitye are here 
         $('#addCarForm').submit(function(e) {
             e.preventDefault();
             let formData = $(this).serialize();
@@ -203,6 +174,7 @@
                         }
                         // Set an interval to reload the page after the specified time
                         var intervalId = setInterval(reloadPage, reloadInterval);
+
                     } else if (data.success == false) {
                         printErrorMsg(data.msg);
                     } else {
@@ -211,31 +183,83 @@
                 }
             });
             return false;
-
-            // the three functions for flash messages
-            function printValidationErrorMsg(msg) {
-                $.each(msg, function(field_name, error) {
-                    // console.log(field_name,error);
-                    // this will find a input id for error lets create this
-                    $(document).find('#' + field_name + '_error').text(error);
-                });
-            }
-
-            function printErrorMsg(msg) {
-                $('#alert-danger').html('');
-                $('#alert-danger').css('display', 'block');
-                $('#alert-danger').append('' + msg + '');
-            }
-
-            function printSuccessMsg(msg) {
-                $('#alert-success').html('');
-                $('#alert-success').css('display', 'block');
-                $('#alert-success').append('' + msg + '');
-                // if form successfully submitted reset form
-                document.getElementById('addCarForm').reset();
-            }
-
         });
+
+        // Delete Functionality are perform here 
+        $('.deleteBtn').on('click', function() {
+            var car_id = $(this).attr('data-id');
+            var car_name = $(this).attr('data-name');
+
+            $('.car_name').html(car_name);
+
+            $('.deleteButton').on('click', function() {
+                var url = "{{ route('deleteCar', 'car_id') }}";
+                url = url.replace('car_id', car_id);
+                // console.log(url)
+
+                $.ajax({
+                    url: url,
+                    type: 'GET',
+                    contentType: false,
+                    processData: false,
+                    beforeSend: function() {
+                        $('.deleteButton').prop('disabled', true);
+                    },
+                    complete: function() {
+                        $('.deleteButton').prop('disabled', false);
+                    },
+                    success: function(data) {
+                        if (data.success == true) {
+                            // this is the correct way to close modal
+                            $('#deleteModal').modal('hide').on('hidden.bs.modal', function(e) {
+                                $(this).remove(); // Remove the modal from the DOM
+                                $('.modal-backdrop').remove(); // Remove the backdrop from the DOM
+                                $('body').removeClass('modal-open'); // Remove the modal-open class from the body
+                                $('body').css('padding-right', ''); // Reset padding-right
+                            });
+
+                            printSuccessMsg(data.msg);
+                            var reloadInterval = 2000; //page reload delay duration
+                            // Function to reload the whole page
+                            function reloadPage() {
+                                location.reload(true); // Pass true to force a reload from the server and not from the browser cache
+                            }
+                            // Set an interval to reload the page after the specified time
+                            var intervalId = setInterval(reloadPage, reloadInterval);
+
+                        } else if (data.success == false) {
+                            printErrorMsg(data.msg);
+                        } else {
+                            printValidationErrorMsg(data.msg);
+                        }
+                    }
+                });
+
+            });
+        });
+
+        // the three functions for flash messages
+        function printValidationErrorMsg(msg) {
+            $.each(msg, function(field_name, error) {
+                // console.log(field_name,error);
+                // this will find a input id for error lets create this
+                $(document).find('#' + field_name + '_error').text(error);
+            });
+        }
+
+        function printErrorMsg(msg) {
+            $('#alert-danger').html('');
+            $('#alert-danger').css('display', 'block');
+            $('#alert-danger').append('' + msg + '');
+        }
+
+        function printSuccessMsg(msg) {
+            $('#alert-success').html('');
+            $('#alert-success').css('display', 'block');
+            $('#alert-success').append('' + msg + '');
+            // if form successfully submitted reset form
+            document.getElementById('addCarForm').reset();
+        }
     </script>
 </body>
 

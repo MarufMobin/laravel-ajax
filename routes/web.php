@@ -10,3 +10,4 @@ Route::get('/', function () {
 
 Route::get('/display/cars', [CrudController::class, 'showAllCars']);
 Route::get('/add/cars', [CrudController::class, 'addCar'])->name('addCar');
+Route::get('delete/car/{id}', [CrudController::class, 'deleteCar'])->name('deleteCar');

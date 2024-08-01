@@ -40,4 +40,14 @@ class CrudController extends Controller
             }
         }
     }
+
+    public function  deleteCar($id)
+    {
+        try {
+            $delete_car = Car::where('id', $id)->delete();
+            return response()->json(['success' => true, 'msg' => 'Car Deleted Successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'msg' => $e->getMessage()]);
+        }
+    }
 }
