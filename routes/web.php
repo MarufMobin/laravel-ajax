@@ -10,4 +10,5 @@ Route::get('/', function () {
 
 Route::get('/display/cars', [CrudController::class, 'showAllCars']);
 Route::get('/add/cars', [CrudController::class, 'addCar'])->name('addCar');
+Route::get('/edit/car', [CrudController::class, 'editCar'])->name('editCar');
 Route::get('delete/car/{id}', [CrudController::class, 'deleteCar'])->name('deleteCar');
